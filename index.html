@@ -286,6 +286,22 @@
         .cell.clear-preview { background-color: #ff9800 !important; }
         .cell.explosion { background-color: #ffffff !important; transform: scale(1.1); }
 
+        /* Partikel Animation */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 60;
+            animation: particleFly 0.6s ease-out forwards;
+        }
+
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0.2); opacity: 0; }
+        }
+
         .floating-text {
             position: absolute;
             color: #ffd700;
@@ -433,8 +449,8 @@
             <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" oninput="changeVolume(this.value)">
         </div>
 
-        <button class="btn" onclick="openShop()" style="background-color: #ff9800; color: #1a1a1a;">💎 Juwelen-Shop</button>
-        <button class="btn" onclick="giveGems(1000)" style="background-color: #e91e63; color: white; font-size: 11px; padding: 4px; margin-top: 4px;">🛠️ Dev: +1.000 Juwelen</button>
+        <button class="btn" onclick="openShop()" style="background-color: #ff9800; color: #1a1a1a;">💎 Shop & Musik</button>
+        <button class="btn" onclick="giveGems(2000)" style="background-color: #e91e63; color: white; font-size: 11px; padding: 4px; margin-top: 4px;">🛠️ Dev: +2.000 Juwelen</button>
         
         <div id="leaderboard-container">
             <h2>🏆 Top 5 Spieler</h2>
@@ -546,6 +562,20 @@
         let activeTheme = localStorage.getItem('blockExplosionTheme') || 'standard';
         let unlockedThemes = JSON.parse(localStorage.getItem('blockExplosionUnlocked')) || ['standard'];
 
+        let activeMusicTrack = localStorage.getItem('blockExplosionMusicTrack') || 'standard';
+        let unlockedMusic = JSON.parse(localStorage.getItem('blockExplosionUnlockedMusic')) || ['standard'];
+
+        function getMusicFile(trackKey) {
+            if (trackKey === 'arcade') return 'arcade-musik.mp3';
+            if (trackKey === 'chill') return 'chill-arcade.mp3';
+            return 'hintergrundmusik.mp3';
+        }
+
+        let bgMusic = new Audio(getMusicFile(activeMusicTrack));
+        bgMusic.loop = true;
+        bgMusic.volume = 0.5;
+        let musicEnabled = false;
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
@@ -565,6 +595,12 @@
             gold: { name: "Gold & Luxus 👑", price: 5000, colors: ["#d4af37", "#ffd700", "#b8860b", "#daa520", "#eee8aa", "#f0e68c", "#bdb76b"] }
         };
 
+        const musicTracks = {
+            standard: { name: "Standard Musik 🎵", price: 0 },
+            arcade: { name: "Arcade Song 🕹️", price: 2000 },
+            chill: { name: "Chill Arcade ☕", price: 2000 }
+        };
+
         function updateGemUI() {
             document.getElementById('gem-count').innerText = gems;
             const shopGemCount = document.getElementById('shop-gem-count');
@@ -576,6 +612,11 @@
             updateGemUI();
             const container = document.getElementById('shop-items-container');
             container.innerHTML = '';
+
+            let titleThemes = document.createElement('div');
+            titleThemes.innerHTML = '<strong style="color:#ff9800; font-size:13px;">Farb-Themes:</strong>';
+            container.appendChild(titleThemes);
+
             for (let key in themes) {
                 let theme = themes[key];
                 let isUnlocked = unlockedThemes.includes(key);
@@ -591,14 +632,14 @@
                 div.style.border = isActive ? '2px solid #00bcd4' : '1px solid rgba(255,255,255,0.1)';
                 
                 let textDiv = document.createElement('div');
-                textDiv.innerHTML = `<strong style="color:white; font-size:13px;">${theme.name}</strong><br><span style="color:#aaa; font-size:11px;">${isUnlocked ? (isActive ? 'Aktiv' : 'Freigeschaltet') : 'Kosten: ' + theme.price + ' 💎'}</span>`;
+                textDiv.innerHTML = `<span style="color:white; font-size:12px;">${theme.name}</span><br><span style="color:#aaa; font-size:10px;">${isUnlocked ? (isActive ? 'Aktiv' : 'Freigeschaltet') : 'Kosten: ' + theme.price + ' 💎'}</span>`;
                 
                 let actionBtn = document.createElement('button');
                 actionBtn.className = 'btn';
                 actionBtn.style.width = 'auto';
                 actionBtn.style.padding = '4px 8px';
                 actionBtn.style.margin = '0';
-                actionBtn.style.fontSize = '12px';
+                actionBtn.style.fontSize = '11px';
                 
                 if (isActive) {
                     actionBtn.innerText = 'Aktiv'; actionBtn.disabled = true; actionBtn.style.backgroundColor = '#444';
@@ -610,10 +651,51 @@
                 div.appendChild(textDiv); div.appendChild(actionBtn);
                 container.appendChild(div);
             }
+
+            let titleMusic = document.createElement('div');
+            titleMusic.innerHTML = '<strong style="color:#00bcd4; font-size:13px; margin-top:10px; display:block;">Hintergrundmusik:</strong>';
+            container.appendChild(titleMusic);
+
+            for (let key in musicTracks) {
+                let track = musicTracks[key];
+                let isUnlocked = unlockedMusic.includes(key);
+                let isActive = activeMusicTrack === key;
+
+                let div = document.createElement('div');
+                div.style.background = 'rgba(255,255,255,0.05)';
+                div.style.padding = '8px';
+                div.style.borderRadius = '6px';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.style.border = isActive ? '2px solid #00bcd4' : '1px solid rgba(255,255,255,0.1)';
+
+                let textDiv = document.createElement('div');
+                textDiv.innerHTML = `<span style="color:white; font-size:12px;">${track.name}</span><br><span style="color:#aaa; font-size:10px;">${isUnlocked ? (isActive ? 'Aktiv' : 'Freigeschaltet') : 'Kosten: ' + track.price + ' 💎'}</span>`;
+
+                let actionBtn = document.createElement('button');
+                actionBtn.className = 'btn';
+                actionBtn.style.width = 'auto';
+                actionBtn.style.padding = '4px 8px';
+                actionBtn.style.margin = '0';
+                actionBtn.style.fontSize = '11px';
+
+                if (isActive) {
+                    actionBtn.innerText = 'Aktiv'; actionBtn.disabled = true; actionBtn.style.backgroundColor = '#444';
+                } else if (isUnlocked) {
+                    actionBtn.innerText = 'Wählen'; actionBtn.style.backgroundColor = '#00bcd4'; actionBtn.onclick = () => selectMusicTrack(key);
+                } else {
+                    actionBtn.innerText = 'Kaufen'; actionBtn.style.backgroundColor = gems >= track.price ? '#ff9800' : '#444'; actionBtn.onclick = () => buyMusicTrack(key);
+                }
+                div.appendChild(textDiv); div.appendChild(actionBtn);
+                container.appendChild(div);
+            }
+
             document.getElementById('shop-modal').style.display = 'flex';
         }
 
         function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+        
         function buyTheme(key) {
             let theme = themes[key];
             if (gems >= theme.price) {
@@ -625,10 +707,26 @@
         function selectTheme(key) { activeTheme = key; localStorage.setItem('blockExplosionTheme', activeTheme); openShop(); }
         function getCurrentColors() { return themes[activeTheme].colors; }
 
-        const bgMusic = new Audio('hintergrundmusik.mp3');
-        bgMusic.loop = true;
-        bgMusic.volume = 0.5;
-        let musicEnabled = false;
+        function buyMusicTrack(key) {
+            let track = musicTracks[key];
+            if (gems >= track.price) {
+                gems -= track.price; unlockedMusic.push(key);
+                localStorage.setItem('blockExplosionUnlockedMusic', JSON.stringify(unlockedMusic));
+                selectMusicTrack(key); openShop();
+            } else { alert("Nicht genug Juwelen!"); }
+        }
+
+        function selectMusicTrack(key) {
+            activeMusicTrack = key;
+            localStorage.setItem('blockExplosionMusicTrack', activeMusicTrack);
+            let wasPlaying = musicEnabled;
+            if (musicEnabled) { bgMusic.pause(); }
+            bgMusic = new Audio(getMusicFile(key));
+            bgMusic.loop = true;
+            bgMusic.volume = volumeSlider.value;
+            if (wasPlaying) { bgMusic.play().catch(e => console.log(e)); }
+            openShop();
+        }
 
         function toggleMusic() {
             musicEnabled = !musicEnabled;
@@ -1035,6 +1133,35 @@
             }
         }
 
+        function createParticles(cellHtml) {
+            const rect = cellHtml.getBoundingClientRect();
+            const boardRect = board.getBoundingClientRect();
+            const centerX = rect.left - boardRect.left + rect.width / 2;
+            const centerY = rect.top - boardRect.top + rect.height / 2;
+
+            const colors = getCurrentColors();
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.backgroundColor = randomColor;
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 30 + Math.random() * 50;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+
+                boardWrapper.appendChild(particle);
+                setTimeout(() => particle.remove(), 600);
+            }
+        }
+
         function checkAndClearLines() {
             let rowsToClear = [], colsToClear = [];
             for (let r = 0; r < 8; r++) if (grid[r].every(v => v === 1)) rowsToClear.push(r);
@@ -1072,6 +1199,7 @@
         }
 
         function explodeCell(r, c, cellHtml) {
+            createParticles(cellHtml);
             grid[r][c] = 0; gridColors[r][c] = -1; cellHtml.className = 'cell explosion';
             setTimeout(() => { cellHtml.className = 'cell'; }, 200);
         }
@@ -1111,8 +1239,11 @@
         }
 
         function useHammer(row, col) {
-            playSound('hammer'); grid[row][col] = 0; gridColors[row][col] = -1;
-            let cell = board.children[row * 8 + col]; cell.className = 'cell explosion';
+            playSound('hammer'); 
+            let cell = board.children[row * 8 + col];
+            createParticles(cell);
+            grid[row][col] = 0; gridColors[row][col] = -1; 
+            cell.className = 'cell explosion';
             setTimeout(() => { cell.className = 'cell'; }, 200);
             hammersAvailable--; deactivateHammer(); updateHammerUI(); checkTableClear(); checkGameOver();
         }
@@ -1211,7 +1342,7 @@
             <p style="color:#aaa; font-size:12px; margin:0 0 12px 0;">Erhalte 1 Juwel pro 1.000 Punkte!</p>
             <p style="color:#00bcd4; font-weight:bold; font-size:14px; margin-bottom:12px;">Verfügbar: <span id="shop-gem-count">0</span> 💎</p>
             
-            <div id="shop-items-container" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; margin-bottom:15px; text-align:left;">
+            <div id="shop-items-container" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; margin-bottom:15px; text-align:left;">
             </div>
             
             <button class="btn" onclick="closeShop()" style="background-color:#666; margin:0; padding:8px;">Schließen</button>
