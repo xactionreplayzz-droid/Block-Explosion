@@ -354,19 +354,19 @@
             max-width: 400px;
             background: rgba(20, 20, 20, 0.92);
             backdrop-filter: blur(8px);
-            padding: 12px 14px;
+            padding: 10px 14px;
             border-radius: 16px;
             border: 2px solid rgba(255,255,255,0.15);
             box-shadow: 0 8px 25px rgba(0,0,0,0.8);
             box-sizing: border-box;
         }
 
-        .control-row {
+        .control-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
             width: 100%;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         #shape-container {
@@ -375,7 +375,7 @@
             height: 105px;
             align-items: center;
             justify-content: center;
-            flex-grow: 1;
+            width: 100%;
         }
 
         .shape { display: grid; gap: 3px; cursor: grab; touch-action: none; padding: 4px; border-radius: 8px; }
@@ -390,15 +390,14 @@
             background: linear-gradient(45deg, #ff9800, #ff5722);
             color: white;
             border: none;
-            padding: 10px 14px;
-            font-size: 13px;
+            padding: 6px 16px;
+            font-size: 12px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 6px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             text-transform: uppercase;
         }
@@ -483,11 +482,11 @@
         </div>
 
         <div class="bottom-control-panel">
-            <div class="control-row">
-                <button class="btn" onclick="confirmBackToMenu()" style="width: auto; padding: 4px 12px; background-color: #444; font-size: 11px; margin: 0;">Zum Menü</button>
-                <div id="shape-container"></div>
+            <div class="control-header">
+                <button class="btn" onclick="confirmBackToMenu()" style="width: auto; padding: 5px 10px; background-color: #444; font-size: 11px; margin: 0;">Menü</button>
                 <button id="rotate-btn" onclick="rotateSelectedShape()">🔄 <span>Drehen</span></button>
             </div>
+            <div id="shape-container"></div>
         </div>
     </div>
 
