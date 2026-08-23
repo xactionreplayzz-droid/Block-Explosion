@@ -601,7 +601,16 @@
         bgMusic.volume = 0.5;
         let musicEnabled = false;
 
-        // JSONBIN.IO API CONFIG
+        // MP3-Audio-Dateien für Explosion, Platzieren und Drehen
+        const explosionSound = new Audio('explosion.mp3');
+        explosionSound.volume = 0.6;
+
+        const placeSound = new Audio('place.mp3');
+        placeSound.volume = 0.5;
+
+        const rotateSound = new Audio('rotate.mp3');
+        rotateSound.volume = 0.5;
+
         const BIN_ID = '6a8b27c1f5f4af5e2938f5a9';
         const API_KEY = '$2a$10$JS7SCjxe/eU0tzIHgnvg5OO8THxhIaeuVMQDp7MS5s0Nozh3zTcWi';
         let leaderboards = [];
@@ -872,23 +881,27 @@
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
         function playSound(type) {
+            if (type === 'explode') {
+                explosionSound.currentTime = 0;
+                explosionSound.play().catch(e => console.log("Audio-Fehler:", e));
+                return;
+            }
+            if (type === 'place') {
+                placeSound.currentTime = 0;
+                placeSound.play().catch(e => console.log("Audio-Fehler:", e));
+                return;
+            }
+            if (type === 'rotate') {
+                rotateSound.currentTime = 0;
+                rotateSound.play().catch(e => console.log("Audio-Fehler:", e));
+                return;
+            }
+
             if (!audioCtx) audioCtx = new AudioContext();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
             
-            if (type === 'place') {
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
-                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'explode') {
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(800, now + 0.1);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            } else if (type === 'gameover') {
+            if (type === 'gameover') {
                 const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now); osc.frequency.exponentialRampToValueAtTime(50, now + 1);
@@ -908,16 +921,10 @@
                 osc.frequency.setValueAtTime(783.99, now + 0.2); osc.frequency.setValueAtTime(1046.50, now + 0.3);
                 gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
                 osc.start(now); osc.stop(now + 0.6);
-            } else if (type === 'rotate') {
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                osc.start(now); osc.stop(now + 0.08);
             }
         }
 
-        const allShapes = [
+        const baseShapes = [
             { matrix: [[1, 1], [1, 1]], colorId: 0 },
             { matrix: [[1, 1, 1]], colorId: 1 },
             { matrix: [[1], [1], [1]], colorId: 1 },
@@ -930,12 +937,24 @@
             { matrix: [[1]], colorId: 6 }
         ];
 
+        const advancedShapes = [
+            { matrix: [[1, 0], [0, 1]], colorId: 3 },
+            { matrix: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], colorId: 5 },
+            { matrix: [[1, 1, 0], [0, 1, 1]], colorId: 0 },
+            { matrix: [[1, 1, 1], [1, 0, 0], [1, 0, 0]], colorId: 4 }
+        ];
+
         function getRandomShape() {
+            let availableShapes = baseShapes;
+            if (score >= 20000) {
+                availableShapes = baseShapes.concat(advancedShapes);
+            }
+
             let filledCount = grid.flat().filter(v => v === 1).length;
-            let filteredShapes = allShapes;
-            if (filledCount > 32) filteredShapes = allShapes.filter(s => s.matrix.flat().reduce((a, b) => a + b, 0) <= 4);
-            if (filledCount > 45) filteredShapes = allShapes.filter(s => s.matrix.flat().reduce((a, b) => a + b, 0) <= 3);
-            if (filteredShapes.length === 0) filteredShapes = allShapes;
+            let filteredShapes = availableShapes;
+            if (filledCount > 32) filteredShapes = availableShapes.filter(s => s.matrix.flat().reduce((a, b) => a + b, 0) <= 4);
+            if (filledCount > 45) filteredShapes = availableShapes.filter(s => s.matrix.flat().reduce((a, b) => a + b, 0) <= 3);
+            if (filteredShapes.length === 0) filteredShapes = availableShapes;
             return filteredShapes[Math.floor(Math.random() * filteredShapes.length)];
         }
 
