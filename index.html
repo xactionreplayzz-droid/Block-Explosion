@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Block Explosion 💥</title>
     <style>
         body {
@@ -88,6 +86,12 @@
 
         #music-btn { background-color: #444; color: white; border: 2px solid #666; }
         #music-btn.active { background-color: #4caf50; border-color: #66bb6a; color: white; }
+
+        #fullscreen-btn {
+            background-color: #9c27b0;
+            color: white;
+            border: 2px solid #ba68c8;
+        }
 
         #leaderboard-container {
             margin-top: 10px;
@@ -332,6 +336,7 @@
     <div id="main-menu">
         <h1>Block Explosion 💥</h1>
         <button class="btn" onclick="openGame()">Spiel Starten</button>
+        <button id="fullscreen-btn" class="btn" onclick="toggleFullscreen()">Vollbild ⛶</button>
         <div id="gem-display" style="color: #00bcd4; font-weight: bold; margin-top: 8px; font-size: 15px;">💎 Juwelen: <span id="gem-count">0</span></div>
         <button id="music-btn" class="btn" onclick="toggleMusic()">Musik: AUS</button>
         <button class="btn" onclick="openShop()" style="background-color: #ff9800; color: #1a1a1a;">💎 Juwelen-Shop</button>
@@ -449,6 +454,18 @@
             pastel: { name: "Pastel Traum 🌸", price: 1000, colors: ["#ffb3ba", "#ffdfba", "#ffffba", "#baffc9", "#bae1ff", "#e8baff", "#ffbae4"] },
             gold: { name: "Gold & Luxus 👑", price: 5000, colors: ["#d4af37", "#ffd700", "#b8860b", "#daa520", "#eee8aa", "#f0e68c", "#bdb76b"] }
         };
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Vollbild nicht möglich:", err.message);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
 
         function updateGemUI() {
             document.getElementById('gem-count').innerText = gems;
