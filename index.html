@@ -452,8 +452,8 @@
         <button class="btn" onclick="giveGems(2000)" style="background-color: #e91e63; color: white; font-size: 11px; padding: 4px; margin-top: 4px;">🛠️ Dev: +2.000 Juwelen</button>
         
         <div id="leaderboard-container">
-            <h2>🏆 Top 5 Spieler</h2>
-            <div id="leaderboard-list"></div>
+            <h2>🏆 Top 5 Spieler (Online)</h2>
+            <div id="leaderboard-list">Lade Highscores...</div>
         </div>
     </div>
 
@@ -559,7 +559,6 @@
         
         let gems = parseInt(localStorage.getItem('blockExplosionGems')) || 0;
 
-        // DEFINITION DER THEMES UND HINTERGRÜNDE
         const themes = {
             standard: { name: "Standard Neon", price: 0, colors: ["#ff5252", "#ffeb3b", "#00bcd4", "#ab47bc", "#66bb6a", "#ff9800", "#26c6da"] },
             neon: { name: "Cyberpunk Neon ⚡", price: 500, colors: ["#ff0055", "#00ffcc", "#ffff00", "#ff00ff", "#00ff00", "#ff6600", "#00ffff"] },
@@ -578,22 +577,18 @@
             chill: { name: "Chill Arcade ☕", price: 2000 }
         };
 
-        // LADE-SICHERHEITS-CHECKS
         let activeTheme = localStorage.getItem('blockExplosionTheme') || 'standard';
-        if (!themes[activeTheme]) activeTheme = 'standard'; // Sicherstellen, dass das Theme noch existiert!
-
+        if (!themes[activeTheme]) activeTheme = 'standard';
         let unlockedThemes = JSON.parse(localStorage.getItem('blockExplosionUnlocked')) || ['standard'];
-        unlockedThemes = unlockedThemes.filter(t => themes[t]); // Alte ungültige Themes löschen
+        unlockedThemes = unlockedThemes.filter(t => themes[t]);
 
         let activeBackground = localStorage.getItem('blockExplosionBackground') || 'standard';
         if (!backgroundThemes[activeBackground]) activeBackground = 'standard';
-
         let unlockedBackgrounds = JSON.parse(localStorage.getItem('blockExplosionUnlockedBackgrounds')) || ['standard'];
         unlockedBackgrounds = unlockedBackgrounds.filter(b => backgroundThemes[b]);
 
         let activeMusicTrack = localStorage.getItem('blockExplosionMusicTrack') || 'standard';
         let unlockedMusic = JSON.parse(localStorage.getItem('blockExplosionUnlockedMusic')) || ['standard'];
-
 
         function getMusicFile(trackKey) {
             if (trackKey === 'arcade') return 'arcade-musik.mp3';
@@ -606,23 +601,71 @@
         bgMusic.volume = 0.5;
         let musicEnabled = false;
 
+        // JSONBIN.IO API CONFIG
+        const BIN_ID = '6a8b27c1f5f4af5e2938f5a9';
+        const API_KEY = '$2a$10$JS7SCjxe/eU0tzIHgnvg5OO8THxhIaeuVMQDp7MS5s0Nozh3zTcWi';
+        let leaderboards = [];
+
+        function loadLeaderboard() {
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            })
+            .then(res => res.json())
+            .then(data => {
+                leaderboards = data.record.leaderboard || [];
+                updateLeaderboardUI();
+            })
+            .catch(err => {
+                console.log("Fehler beim Laden des Leaderboards:", err);
+                leaderboardList.innerHTML = '<div style="text-align:center; color:#ff5722; font-size:11px;">Offline / Fehler</div>';
+            });
+        }
+
+        function saveOnlineLeaderboard() {
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify({ leaderboard: leaderboards })
+            })
+            .then(() => updateLeaderboardUI())
+            .catch(err => console.log("Fehler beim Speichern:", err));
+        }
+
+        function updateLeaderboardUI() {
+            leaderboardList.innerHTML = '';
+            if (leaderboards.length === 0) {
+                leaderboardList.innerHTML = '<div style="text-align:center; color:#888; font-size:11px;">Noch keine Einträge.</div>';
+            } else {
+                leaderboards.forEach((entry, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('leaderboard-entry');
+                    div.innerHTML = `<span class="rank">#${index + 1}</span><span class="name">${entry.name}</span><span class="score">${entry.score}</span>`;
+                    leaderboardList.appendChild(div);
+                });
+            }
+            topScoreElement.innerText = leaderboards.length > 0 ? leaderboards[0].score : 0;
+        }
+
+        function isNewHighscore(scoreToCheck) {
+            if (scoreToCheck === 0) return false;
+            if (leaderboards.length < 5) return true;
+            return scoreToCheck > leaderboards[leaderboards.length - 1].score;
+        }
+
         function applyGameBackground() {
             let gameBgImage = 'spiel-hintergrund.jpeg';
-            if (activeBackground === 'cats') {
-                gameBgImage = 'katzen-hintergrund.jpeg';
-            }
+            if (activeBackground === 'cats') gameBgImage = 'katzen-hintergrund.jpeg';
             bgGame.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${gameBgImage}')`;
         }
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Fehler beim Aktivieren des Vollbildmodus: ", err.message);
-                });
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         }
 
@@ -638,7 +681,6 @@
             const container = document.getElementById('shop-items-container');
             container.innerHTML = '';
 
-            // Farb-Themes (Blöcke)
             let titleThemes = document.createElement('div');
             titleThemes.innerHTML = '<strong style="color:#ff9800; font-size:13px;">Block-Themes:</strong>';
             container.appendChild(titleThemes);
@@ -678,7 +720,6 @@
                 container.appendChild(div);
             }
 
-            // Spielfeld-Hintergründe
             let titleBgs = document.createElement('div');
             titleBgs.innerHTML = '<strong style="color:#e91e63; font-size:13px; margin-top:10px; display:block;">Spielfeld-Hintergrund:</strong>';
             container.appendChild(titleBgs);
@@ -718,7 +759,6 @@
                 container.appendChild(div);
             }
 
-            // Musik
             let titleMusic = document.createElement('div');
             titleMusic.innerHTML = '<strong style="color:#00bcd4; font-size:13px; margin-top:10px; display:block;">Hintergrundmusik:</strong>';
             container.appendChild(titleMusic);
@@ -774,7 +814,6 @@
         function selectTheme(key) { 
             activeTheme = key; 
             localStorage.setItem('blockExplosionTheme', activeTheme); 
-            // Direkt beim Wechseln die neuen Farben im Shop & Spiel zeichnen
             drawCurrentShapes();
             drawPreviewShapes();
             openShop(); 
@@ -878,30 +917,6 @@
             }
         }
 
-        const MAX_HIGHSCORES = 5;
-        let leaderboards = JSON.parse(localStorage.getItem('blockExplosionLeaderboard')) || [];
-
-        function updateLeaderboardUI() {
-            leaderboardList.innerHTML = '';
-            if (leaderboards.length === 0) {
-                leaderboardList.innerHTML = '<div style="text-align:center; color:#888; font-size:11px;">Noch keine Einträge.</div>';
-            } else {
-                leaderboards.forEach((entry, index) => {
-                    const div = document.createElement('div');
-                    div.classList.add('leaderboard-entry');
-                    div.innerHTML = `<span class="rank">#${index + 1}</span><span class="name">${entry.name}</span><span class="score">${entry.score}</span>`;
-                    leaderboardList.appendChild(div);
-                });
-            }
-            topScoreElement.innerText = leaderboards.length > 0 ? leaderboards[0].score : 0;
-        }
-
-        function isNewHighscore(scoreToCheck) {
-            if (scoreToCheck === 0) return false;
-            if (leaderboards.length < MAX_HIGHSCORES) return true;
-            return scoreToCheck > leaderboards[leaderboards.length - 1].score;
-        }
-
         const allShapes = [
             { matrix: [[1, 1], [1, 1]], colorId: 0 },
             { matrix: [[1, 1, 1]], colorId: 1 },
@@ -934,7 +949,7 @@
         }
 
         function drawCurrentShapes() {
-            if (!themes[activeTheme]) return; // Sicherheitscode
+            if (!themes[activeTheme]) return;
             currentShapes.forEach((shapeObj, index) => {
                 let shapeDiv = document.getElementById(`shape-${index}`);
                 if (!shapeDiv) return;
@@ -958,7 +973,7 @@
         function initShapeContainer() {
             shapeContainer.innerHTML = ''; 
             blocksUsed = 0;
-            if (!themes[activeTheme]) return; // Sicherheitscode
+            if (!themes[activeTheme]) return;
             currentShapes.forEach((shapeObj, index) => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
@@ -1135,7 +1150,7 @@
 
         function drawPreviewShapes() {
             previewContainer.innerHTML = ''; 
-            if (!themes[activeTheme]) return; // Sicherheitscode
+            if (!themes[activeTheme]) return;
             nextShapes.forEach(shapeObj => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
@@ -1383,7 +1398,7 @@
         function openMenu() {
             bgMenu.style.display = 'block'; bgGame.style.display = 'none'; gameContainer.style.display = 'none'; mainMenu.style.display = 'flex';
             if (doubleScoreTimer) clearInterval(doubleScoreTimer); doubleScoreActive = false; doubleScoreBanner.style.display = 'none';
-            updateGemUI(); updateLeaderboardUI();
+            updateGemUI(); loadLeaderboard();
         }
 
         function openGame() {
@@ -1417,8 +1432,10 @@
             let name = playerNameInput.value.trim() || "Anonym";
             leaderboards.push({ name: name, score: score });
             leaderboards.sort((a, b) => b.score - a.score);
-            if (leaderboards.length > MAX_HIGHSCORES) leaderboards.pop();
-            localStorage.setItem('blockExplosionLeaderboard', JSON.stringify(leaderboards));
+            if (leaderboards.length > 5) leaderboards.pop();
+            
+            saveOnlineLeaderboard();
+
             playerNameInput.value = ''; gameOverModal.style.display = 'none'; openMenu();
         }
 
@@ -1426,7 +1443,7 @@
 
         applyGameBackground();
         updateGemUI(); 
-        updateLeaderboardUI();
+        loadLeaderboard();
     </script>
 
     <!-- SHOP MODAL -->
