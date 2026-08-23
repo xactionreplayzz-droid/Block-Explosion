@@ -143,7 +143,7 @@
             box-sizing: border-box;
         }
 
-        /* --- OBEN: SKIZZEN-LAYOUT (PUNKTE & VORSCHAU UNTEREINANDER) --- */
+        /* --- OBEN: SKIZZEN-LAYOUT --- */
         .top-bar {
             display: flex;
             flex-direction: column;
@@ -220,7 +220,6 @@
         }
         #hammer-btn.active-hammer { background-color: #ff5722; color: white; outline: 2px solid white; }
 
-        /* RÜCKGÄNGIG BUTTON OBEN */
         #undo-btn {
             background: linear-gradient(45deg, #03a9f4, #00bcd4);
             color: #111;
@@ -230,11 +229,14 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            display: none;
+            display: flex;
             align-items: center;
             gap: 6px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             text-transform: uppercase;
+            width: 75%;
+            justify-content: center;
+            box-sizing: border-box;
         }
         #undo-btn:active { transform: scale(0.95); }
 
@@ -359,20 +361,48 @@
             box-sizing: border-box;
         }
 
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+
         #shape-container {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             height: 105px;
             align-items: center;
             justify-content: center;
-            width: 100%;
+            flex-grow: 1;
         }
 
-        .shape { display: grid; gap: 3px; cursor: grab; touch-action: none; }
+        .shape { display: grid; gap: 3px; cursor: grab; touch-action: none; padding: 4px; border-radius: 8px; }
+        .shape.selected-shape { background: rgba(0, 188, 212, 0.2); outline: 2px dashed #00bcd4; }
+        
         .shape-cell { border-radius: 4px; pointer-events: none; }
-        .shape-cell.main { width: 32px; height: 32px; }
+        .shape-cell.main { width: 30px; height: 30px; }
         .shape-cell.preview { width: 17px; height: 17px; }
         .shape-cell.empty { background-color: transparent !important; }
+
+        #rotate-btn {
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            text-transform: uppercase;
+        }
+        #rotate-btn:active { transform: scale(0.92); }
 
         #drag-ghost {
             position: fixed;
@@ -453,8 +483,11 @@
         </div>
 
         <div class="bottom-control-panel">
-            <button class="btn" onclick="confirmBackToMenu()" style="width: auto; padding: 4px 16px; background-color: #444; font-size: 12px; margin-bottom: 6px;">Zum Hauptmenü</button>
-            <div id="shape-container"></div>
+            <div class="control-row">
+                <button class="btn" onclick="confirmBackToMenu()" style="width: auto; padding: 4px 12px; background-color: #444; font-size: 11px; margin: 0;">Zum Menü</button>
+                <div id="shape-container"></div>
+                <button id="rotate-btn" onclick="rotateSelectedShape()">🔄 <span>Drehen</span></button>
+            </div>
         </div>
     </div>
 
@@ -495,11 +528,10 @@
         let nextShapes = [];
 
         let activeShapeIndex = null;
-        let activePointerId = null;
-        
+        let selectedShapeIndex = 0;
         let ghostCellSize = 0;
-        let grabOffsetRow = 0;
-        let grabOffsetCol = 0;
+        let isDragging = false;
+        let startX = 0, startY = 0;
 
         let hammersAvailable = 0;
         let hammerModeActive = false;
@@ -607,9 +639,7 @@
             }
         }
 
-        function changeVolume(val) {
-            bgMusic.volume = val;
-        }
+        function changeVolume(val) { bgMusic.volume = val; }
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
@@ -650,6 +680,12 @@
                 osc.frequency.setValueAtTime(783.99, now + 0.2); osc.frequency.setValueAtTime(1046.50, now + 0.3);
                 gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
                 osc.start(now); osc.stop(now + 0.6);
+            } else if (type === 'rotate') {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now); osc.stop(now + 0.08);
             }
         }
 
@@ -709,54 +745,47 @@
         }
 
         function drawCurrentShapes() {
-            shapeContainer.innerHTML = ''; blocksUsed = 0;
+            currentShapes.forEach((shapeObj, index) => {
+                let shapeDiv = document.getElementById(`shape-${index}`);
+                if (!shapeDiv) return;
+                
+                if (index === selectedShapeIndex) shapeDiv.classList.add('selected-shape');
+                else shapeDiv.classList.remove('selected-shape');
+
+                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 30px)`;
+                shapeDiv.innerHTML = '';
+                
+                shapeObj.matrix.forEach(row => row.forEach(val => {
+                    const cell = document.createElement('div');
+                    cell.classList.add('shape-cell', 'main');
+                    if (val === 1) cell.style.backgroundColor = getCurrentColors()[shapeObj.colorId];
+                    else cell.classList.add('empty');
+                    shapeDiv.appendChild(cell);
+                }));
+            });
+        }
+
+        function initShapeContainer() {
+            shapeContainer.innerHTML = ''; 
+            blocksUsed = 0;
             currentShapes.forEach((shapeObj, index) => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
-                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 32px)`;
+                shapeDiv.style.visibility = 'visible';
+                if (index === selectedShapeIndex) shapeDiv.classList.add('selected-shape');
+                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 30px)`;
                 shapeDiv.id = `shape-${index}`; 
-                
+
                 shapeDiv.addEventListener('pointerdown', (e) => {
                     if (hammerModeActive) return;
-                    e.preventDefault();
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    selectedShapeIndex = index;
+                    drawCurrentShapes();
                     activeShapeIndex = index;
                     activePointerId = e.pointerId;
+                    isDragging = false;
                     shapeDiv.setPointerCapture(e.pointerId);
-                    
-                    const boardRect = board.getBoundingClientRect();
-                    ghostCellSize = (boardRect.width - 16) / 8;
-                    
-                    const rect = shapeDiv.getBoundingClientRect();
-                    const localX = e.clientX - rect.left;
-                    const localY = e.clientY - rect.top;
-                    const previewCellSize = rect.width / shapeObj.matrix[0].length;
-                    const clickedCol = Math.floor(localX / previewCellSize);
-                    const clickedRow = Math.floor(localY / previewCellSize);
-                    
-                    let found = false, minDist = 999;
-                    for (let r = 0; r < shapeObj.matrix.length; r++) {
-                        for (let c = 0; c < shapeObj.matrix[r].length; c++) {
-                            if (shapeObj.matrix[r][c] === 1) {
-                                let dist = Math.abs(r - clickedRow) + Math.abs(c - clickedCol);
-                                if (!found || dist < minDist) { minDist = dist; grabOffsetRow = r; grabOffsetCol = c; found = true; }
-                            }
-                        }
-                    }
-                    
-                    dragGhost.innerHTML = '';
-                    shapeObj.matrix.forEach(row => {
-                        row.forEach(val => {
-                            const cell = document.createElement('div');
-                            cell.style.width = ghostCellSize + 'px'; cell.style.height = ghostCellSize + 'px'; cell.style.borderRadius = '4px';
-                            if (val === 1) { cell.style.backgroundColor = getCurrentColors()[shapeObj.colorId]; }
-                            else { cell.style.backgroundColor = 'transparent'; }
-                            dragGhost.appendChild(cell);
-                        });
-                    });
-                    dragGhost.style.display = 'grid';
-                    dragGhost.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, ${ghostCellSize}px)`;
-                    dragGhost.style.gap = '3px';
-                    moveGhost(e.clientX, e.clientY);
                 });
 
                 shapeObj.matrix.forEach(row => row.forEach(val => {
@@ -770,24 +799,52 @@
             });
         }
 
+        function rotateSelectedShape() {
+            if (currentShapes.length === 0) return;
+            let shapeObj = currentShapes[selectedShapeIndex];
+            let shapeDiv = document.getElementById(`shape-${selectedShapeIndex}`);
+            if (!shapeObj || (shapeDiv && shapeDiv.style.visibility === 'hidden')) {
+                for(let i=0; i<3; i++) {
+                    let d = document.getElementById(`shape-${i}`);
+                    if(d && d.style.visibility !== 'hidden') {
+                        selectedShapeIndex = i;
+                        break;
+                    }
+                }
+                shapeObj = currentShapes[selectedShapeIndex];
+                if (!shapeObj) return;
+            }
+
+            playSound('rotate');
+            let m = shapeObj.matrix;
+            let rows = m.length;
+            let cols = m[0].length;
+            let rotated = Array(cols).fill().map(() => Array(rows).fill(0));
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    rotated[c][rows - 1 - r] = m[r][c];
+                }
+            }
+            shapeObj.matrix = rotated;
+            drawCurrentShapes();
+        }
+
         function moveGhost(clientX, clientY) {
-            let left = clientX - (grabOffsetCol * ghostCellSize + ghostCellSize / 2);
-            let top = clientY - (grabOffsetRow * ghostCellSize + ghostCellSize / 2) - 40;
-            dragGhost.style.left = left + 'px'; dragGhost.style.top = top + 'px';
+            let left = clientX - (ghostCellSize * 1.5);
+            let top = clientY - (ghostCellSize * 3.2);
+            dragGhost.style.left = left + 'px'; 
+            dragGhost.style.top = top + 'px';
         }
 
         function calculateTargetPosition() {
             const ghostRect = dragGhost.getBoundingClientRect();
             const boardRect = board.getBoundingClientRect();
-            const shapeObj = currentShapes[activeShapeIndex];
-            const ghostCellWidth = ghostRect.width / shapeObj.matrix[0].length;
-            const ghostCellHeight = ghostRect.height / shapeObj.matrix.length;
-            const ghostCenterX = ghostRect.left + (ghostCellWidth / 2);
-            const ghostCenterY = ghostRect.top + (ghostCellHeight / 2);
             const boardStrideX = boardRect.width / 8;
             const boardStrideY = boardRect.height / 8;
-            const targetCol = Math.round((ghostCenterX - boardRect.left) / boardStrideX);
-            const targetRow = Math.round((ghostCenterY - boardRect.top) / boardStrideY);
+            
+            const targetCol = Math.round((ghostRect.left - boardRect.left) / boardStrideX);
+            const targetRow = Math.round((ghostRect.top - boardRect.top) / boardStrideY);
             return { targetRow, targetCol };
         }
 
@@ -807,6 +864,7 @@
 
         function highlightBoard() {
             Array.from(board.children).forEach(c => c.classList.remove('hover', 'clear-preview'));
+            if (activeShapeIndex === null) return;
             const shapeObj = currentShapes[activeShapeIndex];
             const rawPos = calculateTargetPosition();
             const bestPos = getClosestValidPosition(shapeObj.matrix, rawPos.targetRow, rawPos.targetCol);
@@ -839,18 +897,47 @@
 
         window.addEventListener('pointermove', (e) => {
             if (activeShapeIndex === null) return;
-            moveGhost(e.clientX, e.clientY); highlightBoard();
+            let moveDist = Math.hypot(e.clientX - startX, e.clientY - startY);
+            if (!isDragging && moveDist > 10) {
+                isDragging = true;
+                const shapeObj = currentShapes[activeShapeIndex];
+                const boardRect = board.getBoundingClientRect();
+                ghostCellSize = (boardRect.width - 16) / 8;
+                
+                dragGhost.innerHTML = '';
+                shapeObj.matrix.forEach(row => {
+                    row.forEach(val => {
+                        const cell = document.createElement('div');
+                        cell.style.width = ghostCellSize + 'px'; cell.style.height = ghostCellSize + 'px'; cell.style.borderRadius = '4px';
+                        if (val === 1) { cell.style.backgroundColor = getCurrentColors()[shapeObj.colorId]; }
+                        else { cell.style.backgroundColor = 'transparent'; }
+                        dragGhost.appendChild(cell);
+                    });
+                });
+                dragGhost.style.display = 'grid';
+                dragGhost.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, ${ghostCellSize}px)`;
+                dragGhost.style.gap = '3px';
+            }
+            if (isDragging) {
+                moveGhost(e.clientX, e.clientY);
+                highlightBoard();
+            }
         });
 
         window.addEventListener('pointerup', (e) => {
             if (activeShapeIndex === null) return;
-            const shapeObj = currentShapes[activeShapeIndex];
-            const rawPos = calculateTargetPosition();
-            const bestPos = getClosestValidPosition(shapeObj.matrix, rawPos.targetRow, rawPos.targetCol);
-            dragGhost.style.display = 'none';
-            Array.from(board.children).forEach(c => c.classList.remove('hover', 'clear-preview'));
-            if (bestPos) attemptPlacement(activeShapeIndex, bestPos.targetRow, bestPos.targetCol);
+            if (isDragging) {
+                const shapeObj = currentShapes[activeShapeIndex];
+                const rawPos = calculateTargetPosition();
+                const bestPos = getClosestValidPosition(shapeObj.matrix, rawPos.targetRow, rawPos.targetCol);
+                dragGhost.style.display = 'none';
+                Array.from(board.children).forEach(c => c.classList.remove('hover', 'clear-preview'));
+                if (bestPos) {
+                    attemptPlacement(activeShapeIndex, bestPos.targetRow, bestPos.targetCol);
+                }
+            }
             activeShapeIndex = null;
+            isDragging = false;
         });
 
         function drawPreviewShapes() {
@@ -890,7 +977,6 @@
                 currentShapes: JSON.parse(JSON.stringify(currentShapes)), nextShapes: JSON.parse(JSON.stringify(nextShapes))
             });
             if (moveHistory.length > 5) moveHistory.shift();
-            document.getElementById('undo-btn').style.display = 'flex';
         }
 
         function undoMove() {
@@ -906,8 +992,7 @@
                     if (grid[r][c] === 1) cell.classList.add(`filled-color-${gridColors[r][c]}`);
                 }
             }
-            drawCurrentShapes(); drawPreviewShapes(); deactivateHammer();
-            if (moveHistory.length === 0) document.getElementById('undo-btn').style.display = 'none';
+            initShapeContainer(); drawPreviewShapes(); deactivateHammer();
             playSound('hammer');
         }
 
@@ -930,13 +1015,17 @@
                 let exploded = checkAndClearLines(); 
                 if (!exploded) playSound('place');
                 updateScore(blocksToPlace * 10);
+                
                 document.getElementById(`shape-${shapeIndex}`).style.visibility = 'hidden';
                 blocksUsed++;
                 checkTableClear();
+                
                 if (blocksUsed === 3) {
                     currentShapes = nextShapes; 
                     nextShapes = [getRandomShape(), getRandomShape(), getRandomShape()]; 
-                    drawCurrentShapes(); drawPreviewShapes();
+                    selectedShapeIndex = 0;
+                    initShapeContainer(); 
+                    drawPreviewShapes();
                 }
                 checkGameOver();
             }
@@ -1069,13 +1158,14 @@
             score = 0; scoreElement.innerText = score; hammersAvailable = 0; updateHammerUI(); deactivateHammer();
             if (doubleScoreTimer) clearInterval(doubleScoreTimer); doubleScoreActive = false; doubleScoreBanner.style.display = 'none';
             grid = Array(8).fill().map(() => Array(8).fill(0)); moveHistory = [];
-            document.getElementById('undo-btn').style.display = 'none';
             gridColors = Array(8).fill().map(() => Array(8).fill(-1));
             Array.from(board.children).forEach(cell => { cell.className = 'cell'; });
             gameOverModal.style.display = 'none';
             currentShapes = [getRandomShape(), getRandomShape(), getRandomShape()];
             nextShapes = [getRandomShape(), getRandomShape(), getRandomShape()];
-            drawCurrentShapes(); drawPreviewShapes();
+            selectedShapeIndex = 0;
+            initShapeContainer(); 
+            drawPreviewShapes();
         }
 
         function saveHighscore() {
