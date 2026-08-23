@@ -10,9 +10,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
+            padding: 10px 0;
             user-select: none;
             touch-action: none;
             overflow-x: hidden;
@@ -44,8 +45,8 @@
             color: #ff5722;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 15px;
-            font-size: 36px;
+            margin-bottom: 10px;
+            font-size: 30px;
             text-shadow: 0 0 15px rgba(0,0,0,0.9), 0 0 10px rgba(255,87,34,0.8);
             text-align: center;
         }
@@ -57,25 +58,27 @@
             align-items: center;
             background: rgba(20, 20, 20, 0.85);
             backdrop-filter: blur(6px);
-            padding: 30px;
+            padding: 20px;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             width: 90%;
             max-width: 420px;
             border: 2px solid rgba(255,255,255,0.15);
             z-index: 10;
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         .btn {
             background-color: #00bcd4;
             color: #1a1a1a;
             border: none;
-            padding: 12px 30px;
-            font-size: 18px;
+            padding: 10px 20px;
+            font-size: 16px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             transition: background 0.2s, transform 0.1s;
             text-transform: uppercase;
             width: 100%;
@@ -97,30 +100,30 @@
         }
 
         #leaderboard-container {
-            margin-top: 25px;
+            margin-top: 15px;
             width: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
         }
 
         #leaderboard-container h2 {
             color: #ffd700;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             border-bottom: 2px solid #555;
-            padding-bottom: 10px;
-            font-size: 20px;
+            padding-bottom: 5px;
+            font-size: 18px;
         }
 
         .leaderboard-entry {
             display: flex;
             justify-content: space-between;
-            font-size: 16px;
-            padding: 6px 0;
+            font-size: 14px;
+            padding: 4px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .leaderboard-entry .rank { color: #aaa; width: 30px; }
+        .leaderboard-entry .rank { color: #aaa; width: 25px; }
         .leaderboard-entry .name { font-weight: bold; flex-grow: 1; text-align: left; }
         .leaderboard-entry .score { color: #00bcd4; font-weight: bold; }
 
@@ -129,16 +132,16 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             width: 100%;
             z-index: 10;
         }
 
         .scores {
             display: flex;
-            gap: 25px;
-            font-size: 18px;
-            margin-bottom: 10px;
+            gap: 20px;
+            font-size: 16px;
+            margin-bottom: 5px;
             font-weight: bold;
         }
         #highscore-board { color: #ffd700; }
@@ -147,25 +150,19 @@
             display: none;
             background: linear-gradient(45deg, #ff9800, #ff5722);
             color: white;
-            padding: 4px 15px;
+            padding: 2px 10px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             box-shadow: 0 0 10px rgba(255,152,0,0.8);
-            animation: pulseBanner 0.8s infinite alternate;
-        }
-
-        @keyframes pulseBanner {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
         }
 
         #powerup-bar {
             display: flex;
-            gap: 15px;
-            margin-bottom: 10px;
-            height: 40px;
+            gap: 10px;
+            margin-bottom: 5px;
+            height: 35px;
             align-items: center;
         }
 
@@ -173,7 +170,8 @@
             background-color: #ff9800;
             color: #1a1a1a;
             border: none;
-            padding: 6px 15px;
+            padding: 5px 10px;
+            font-size: 14px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
@@ -181,29 +179,21 @@
             align-items: center;
             gap: 5px;
             box-shadow: 0 0 10px rgba(255,152,0,0.5);
-            animation: pulse 1.5s infinite;
         }
         #hammer-btn.active-hammer {
             background-color: #ff5722;
             color: white;
-            outline: 3px solid white;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            outline: 2px solid white;
         }
 
         .game-area { 
             display: flex; 
-            flex-direction: column; 
+            flex-direction: row; 
             align-items: center; 
-            gap: 20px; 
-        }
-
-        @media (min-width: 600px) {
-            .game-area { flex-direction: row; align-items: flex-start; }
+            justify-content: center;
+            gap: 10px; 
+            width: 100%;
+            max-width: 450px;
         }
 
         .board-wrapper { position: relative; }
@@ -220,57 +210,57 @@
 
         #game-board {
             display: grid;
-            grid-template-columns: repeat(8, 40px);
-            grid-template-rows: repeat(8, 40px);
+            grid-template-columns: repeat(8, 36px);
+            grid-template-rows: repeat(8, 36px);
             gap: 2px;
             background-color: rgba(30, 30, 30, 0.85);
-            padding: 5px;
+            padding: 4px;
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0,0,0,0.7);
             backdrop-filter: blur(4px);
         }
 
-        @media (min-width: 400px) {
+        @media (min-width: 380px) {
             #game-board {
-                grid-template-columns: repeat(8, 44px);
-                grid-template-rows: repeat(8, 44px);
+                grid-template-columns: repeat(8, 40px);
+                grid-template-rows: repeat(8, 40px);
             }
         }
 
         .cell {
             background-color: rgba(60, 60, 60, 0.7);
-            border-radius: 4px;
+            border-radius: 3px;
             transition: background-color 0.15s, transform 0.1s;
         }
         
-        .cell.filled-color-0 { background-color: #ff5252; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .cell.filled-color-1 { background-color: #ffeb3b; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .cell.filled-color-2 { background-color: #00bcd4; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .cell.filled-color-3 { background-color: #ab47bc; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .cell.filled-color-4 { background-color: #66bb6a; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .cell.filled-color-5 { background-color: #ff9800; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .cell.filled-color-6 { background-color: #26c6da; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
+        .cell.filled-color-0 { background-color: #ff5252; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
+        .cell.filled-color-1 { background-color: #ffeb3b; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
+        .cell.filled-color-2 { background-color: #00bcd4; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
+        .cell.filled-color-3 { background-color: #ab47bc; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
+        .cell.filled-color-4 { background-color: #66bb6a; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
+        .cell.filled-color-5 { background-color: #ff9800; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
+        .cell.filled-color-6 { background-color: #26c6da; box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
 
         .cell.hover { background-color: #666 !important; }
         .cell.hammer-target { cursor: pointer; border: 2px dashed #ff5722; }
 
         .cell.clear-preview {
             background-color: #ff9800 !important;
-            box-shadow: 0 0 10px #ff9800;
+            box-shadow: 0 0 8px #ff9800;
         }
 
         .cell.explosion {
             background-color: #ffffff !important;
-            transform: scale(1.15);
-            box-shadow: 0 0 20px #ffffff;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #ffffff;
         }
 
         .floating-text {
             position: absolute;
             color: #ffd700;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            text-shadow: 0 0 8px rgba(0,0,0,0.8);
             pointer-events: none;
             animation: floatUp 0.8s ease-out forwards;
             z-index: 50;
@@ -278,7 +268,7 @@
 
         @keyframes floatUp {
             0% { transform: translateY(0) scale(0.8); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+            100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
         }
 
         /* --- GAME OVER MODAL --- */
@@ -293,46 +283,46 @@
             border-radius: 8px;
             z-index: 100;
             backdrop-filter: blur(3px);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
         }
 
-        #game-over-modal h2 { color: #ff5722; font-size: 32px; margin: 0 0 10px 0; }
-        #final-score { color: #00bcd4; font-size: 24px; font-weight: bold; }
+        #game-over-modal h2 { color: #ff5722; font-size: 26px; margin: 0 0 8px 0; }
+        #final-score { color: #00bcd4; font-size: 20px; font-weight: bold; }
 
         #new-highscore-area {
             display: none;
             flex-direction: column;
             align-items: center;
-            margin-top: 15px;
+            margin-top: 10px;
         }
         
-        #new-highscore-area p { color: #ffd700; font-weight: bold; margin-bottom: 10px; }
+        #new-highscore-area p { color: #ffd700; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         
         #player-name-input {
-            padding: 8px;
-            font-size: 16px;
+            padding: 6px;
+            font-size: 14px;
             border-radius: 4px;
             border: 2px solid #00bcd4;
             background-color: #222;
             color: white;
             text-align: center;
-            margin-bottom: 10px;
-            width: 180px;
+            margin-bottom: 8px;
+            width: 150px;
         }
 
         .modal-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 10px;
         }
 
         /* --- SHAPE CONTAINER & VORSCHAU --- */
         #shape-container {
             display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            height: 110px;
+            gap: 15px;
+            margin-top: 10px;
+            height: 90px;
             align-items: center;
             justify-content: center;
             width: 100%;
@@ -341,25 +331,22 @@
         #preview-area {
             background-color: rgba(42, 42, 42, 0.85);
             backdrop-filter: blur(4px);
-            padding: 12px;
+            padding: 8px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        #preview-area h3 { margin: 0 0 10px 0; color: #aaa; font-size: 14px; text-transform: uppercase; }
-        #preview-container { display: flex; gap: 15px; }
-        @media (min-width: 600px) {
-            #preview-container { flex-direction: column; gap: 15px; }
-        }
+        #preview-area h3 { margin: 0 0 5px 0; color: #aaa; font-size: 11px; text-transform: uppercase; }
+        #preview-container { display: flex; flex-direction: column; gap: 8px; }
 
         .shape { display: grid; gap: 2px; cursor: grab; touch-action: none; }
-        .shape-cell { border-radius: 4px; pointer-events: none; }
-        .shape-cell.main { width: 30px; height: 30px; }
-        @media (min-width: 400px) { .shape-cell.main { width: 33px; height: 33px; } }
+        .shape-cell { border-radius: 3px; pointer-events: none; }
+        .shape-cell.main { width: 26px; height: 26px; }
+        @media (min-width: 380px) { .shape-cell.main { width: 30px; height: 30px; } }
         
-        .shape-cell.preview { width: 18px; height: 18px; }
+        .shape-cell.preview { width: 14px; height: 14px; }
         .shape-cell.empty { background-color: transparent !important; }
 
         #drag-ghost {
@@ -381,12 +368,11 @@
     <div id="main-menu">
         <h1>Block Explosion 💥</h1>
         <button class="btn" onclick="openGame()">Spiel Starten</button>
-        <div id="gem-display" style="color: #00bcd4; font-weight: bold; margin-top: 15px; font-size: 18px;">💎 Juwelen: <span id="gem-count">0</span></div>
+        <div id="gem-display" style="color: #00bcd4; font-weight: bold; margin-top: 10px; font-size: 16px;">💎 Juwelen: <span id="gem-count">0</span></div>
         <button id="music-btn" class="btn" onclick="toggleMusic()">Musik: AUS</button>
         <button class="btn" onclick="openShop()" style="background-color: #ff9800; color: #1a1a1a;">💎 Juwelen-Shop</button>
         
-        <!-- Entwickler-Test-Button -->
-        <button class="btn" onclick="giveGems(1000)" style="background-color: #e91e63; color: white; font-size: 14px; padding: 8px; margin-top: 10px;">🛠️ Dev: +1.000 Juwelen</button>
+        <button class="btn" onclick="giveGems(1000)" style="background-color: #e91e63; color: white; font-size: 13px; padding: 6px; margin-top: 8px;">🛠️ Dev: +1.000 Juwelen</button>
         
         <div id="leaderboard-container">
             <h2>🏆 Top 5 Spieler 🏆</h2>
@@ -405,7 +391,7 @@
 
         <div id="powerup-bar">
             <button id="hammer-btn" onclick="activateHammer()">🔨 Hammer (<span id="hammer-count">0</span>)</button>
-            <button id="undo-btn" onclick="undoMove()" style="background-color: #03a9f4; color: white; border: none; padding: 6px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; display: none; align-items: center; gap: 5px; box-shadow: 0 0 10px rgba(3,169,244,0.5);">↩️ Rückgängig</button>
+            <button id="undo-btn" onclick="undoMove()" style="background-color: #03a9f4; color: white; border: none; padding: 5px 10px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; display: none; align-items: center; gap: 5px;">↩️ Rückgängig</button>
         </div>
         
         <div class="game-area">
@@ -429,13 +415,13 @@
                 </div>
             </div>
             
-            <button class="btn" onclick="backToMenu()" style="margin-top: 10px; background-color: #444; font-size: 14px; padding: 8px;">Zum Hauptmenü</button>
-            
             <div id="preview-area">
                 <h3>Vorschau</h3>
                 <div id="preview-container"></div>
             </div>
         </div>
+
+        <button class="btn" onclick="backToMenu()" style="margin-top: 8px; width: auto; padding: 6px 15px; background-color: #444; font-size: 13px;">Zum Hauptmenü</button>
         
         <div id="shape-container"></div>
     </div>
@@ -491,7 +477,6 @@
         let secondsLeft = 60;
         
         let gems = parseInt(localStorage.getItem('blockExplosionGems')) || 0;
-        let lastGemScoreMilestone = 0;
         let activeTheme = localStorage.getItem('blockExplosionTheme') || 'standard';
         let unlockedThemes = JSON.parse(localStorage.getItem('blockExplosionUnlocked')) || ['standard'];
 
@@ -521,7 +506,7 @@
                 
                 let div = document.createElement('div');
                 div.style.background = 'rgba(255,255,255,0.05)';
-                div.style.padding = '12px';
+                div.style.padding = '10px';
                 div.style.borderRadius = '8px';
                 div.style.display = 'flex';
                 div.style.justifyContent = 'space-between';
@@ -529,14 +514,14 @@
                 div.style.border = isActive ? '2px solid #00bcd4' : '1px solid rgba(255,255,255,0.1)';
                 
                 let textDiv = document.createElement('div');
-                textDiv.innerHTML = `<strong style="color:white;">${theme.name}</strong><br><span style="color:#aaa; font-size:12px;">${isUnlocked ? (isActive ? 'Aktiv' : 'Freigeschaltet') : 'Kosten: ' + theme.price + ' 💎'}</span>`;
+                textDiv.innerHTML = `<strong style="color:white;">${theme.name}</strong><br><span style="color:#aaa; font-size:11px;">${isUnlocked ? (isActive ? 'Aktiv' : 'Freigeschaltet') : 'Kosten: ' + theme.price + ' 💎'}</span>`;
                 
                 let actionBtn = document.createElement('button');
                 actionBtn.className = 'btn';
                 actionBtn.style.width = 'auto';
-                actionBtn.style.padding = '6px 12px';
+                actionBtn.style.padding = '5px 10px';
                 actionBtn.style.margin = '0';
-                actionBtn.style.fontSize = '14px';
+                actionBtn.style.fontSize = '13px';
                 
                 if (isActive) {
                     actionBtn.innerText = 'Aktiv';
@@ -573,7 +558,7 @@
                 selectTheme(key);
                 openShop();
             } else {
-                alert("Nicht genug Juwelen! Spiele weiter, um Juwelen zu verdienen.");
+                alert("Nicht genug Juwelen!");
             }
         }
 
@@ -585,55 +570,25 @@
 
         function getCurrentColors() { return themes[activeTheme].colors; }
 
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
+        const bgMusic = new Audio('hintergrundmusik.mp3');
+        bgMusic.loop = true;
         let musicEnabled = false;
-        let musicInterval = null;
 
         function toggleMusic() {
             musicEnabled = !musicEnabled;
             if (musicEnabled) {
                 musicBtn.innerText = "Musik: AN";
                 musicBtn.classList.add('active');
-                startBackgroundMusic();
+                bgMusic.play().catch(e => console.log("Audio play blocked:", e));
             } else {
                 musicBtn.innerText = "Musik: AUS";
                 musicBtn.classList.remove('active');
-                stopBackgroundMusic();
+                bgMusic.pause();
             }
         }
 
-        function startBackgroundMusic() {
-            if (!audioCtx) audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            if (musicInterval) clearInterval(musicInterval);
-
-            const notes = [220, 261.63, 329.63, 392.00, 440, 329.63]; 
-            let step = 0;
-
-            musicInterval = setInterval(() => {
-                if (!musicEnabled || !audioCtx) return;
-                const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(notes[step], now);
-                gain.gain.setValueAtTime(0.04, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 1.5);
-
-                step = (step + 1) % notes.length;
-            }, 1200);
-        }
-
-        function stopBackgroundMusic() {
-            if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
-        }
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
 
         function playSound(type) {
             if (!audioCtx) audioCtx = new AudioContext();
@@ -698,7 +653,7 @@
         function updateLeaderboardUI() {
             leaderboardList.innerHTML = '';
             if (leaderboards.length === 0) {
-                leaderboardList.innerHTML = '<div style="text-align:center; color:#888;">Noch keine Einträge. Spiel eine Runde!</div>';
+                leaderboardList.innerHTML = '<div style="text-align:center; color:#888; font-size:12px;">Noch keine Einträge.</div>';
             } else {
                 leaderboards.forEach((entry, index) => {
                     const div = document.createElement('div');
@@ -733,7 +688,6 @@
             { matrix: [[1]], colorId: 6 }
         ];
 
-        // --- INTELLIGENTE ANTI-FRUST-GARANTIE ---
         function getRandomShape() {
             let filledCount = 0;
             for (let r = 0; r < 8; r++) {
@@ -743,23 +697,12 @@
             }
 
             let filteredShapes = allShapes;
-
-            // Ab 32 belegten Feldern (>50% voll): Keine riesigen Riesen-Blöcke (Größe > 4) mehr
             if (filledCount > 32) {
-                filteredShapes = allShapes.filter(s => {
-                    let size = s.matrix.flat().reduce((a, b) => a + b, 0);
-                    return size <= 4;
-                });
+                filteredShapes = allShapes.filter(s => s.matrix.flat().reduce((a, b) => a + b, 0) <= 4);
             }
-
-            // Ab 45 belegten Feldern (>70% voll): Nur noch kleine & kompakte Rettungs-Steine (max 3 Blöcke)
             if (filledCount > 45) {
-                filteredShapes = allShapes.filter(s => {
-                    let size = s.matrix.flat().reduce((a, b) => a + b, 0);
-                    return size <= 3;
-                });
+                filteredShapes = allShapes.filter(s => s.matrix.flat().reduce((a, b) => a + b, 0) <= 3);
             }
-
             if (filteredShapes.length === 0) filteredShapes = allShapes;
             return filteredShapes[Math.floor(Math.random() * filteredShapes.length)];
         }
@@ -768,13 +711,11 @@
             for (let col = 0; col < 8; col++) {
                 const cell = document.createElement('div');
                 cell.classList.add('cell');
-                
                 cell.addEventListener('click', () => {
                     if (hammerModeActive && grid[row][col] === 1) {
                         useHammer(row, col);
                     }
                 });
-
                 board.appendChild(cell);
             }
         }
@@ -784,7 +725,7 @@
             currentShapes.forEach((shapeObj, index) => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
-                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 33px)`;
+                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 30px)`;
                 shapeDiv.id = `shape-${index}`; 
                 
                 shapeDiv.addEventListener('pointerdown', (e) => {
@@ -795,7 +736,7 @@
                     shapeDiv.setPointerCapture(e.pointerId);
                     
                     const boardRect = board.getBoundingClientRect();
-                    ghostCellSize = (boardRect.width - 14) / 8;
+                    ghostCellSize = (boardRect.width - 12) / 8;
                     
                     const rect = shapeDiv.getBoundingClientRect();
                     const localX = e.clientX - rect.left;
@@ -827,10 +768,10 @@
                             const cell = document.createElement('div');
                             cell.style.width = ghostCellSize + 'px';
                             cell.style.height = ghostCellSize + 'px';
-                            cell.style.borderRadius = '4px';
+                            cell.style.borderRadius = '3px';
                             if (val === 1) {
                                 cell.style.backgroundColor = getCurrentColors()[shapeObj.colorId];
-                                cell.style.boxShadow = 'inset 0 0 8px rgba(0,0,0,0.3)';
+                                cell.style.boxShadow = 'inset 0 0 6px rgba(0,0,0,0.3)';
                             } else {
                                 cell.style.backgroundColor = 'transparent';
                             }
@@ -862,7 +803,6 @@
         function moveGhost(clientX, clientY) {
             let left = clientX - (grabOffsetCol * ghostCellSize + ghostCellSize / 2);
             let top = clientY - (grabOffsetRow * ghostCellSize + ghostCellSize / 2) - 35;
-            
             dragGhost.style.left = left + 'px';
             dragGhost.style.top = top + 'px';
         }
@@ -870,13 +810,10 @@
         function calculateTargetPosition() {
             const ghostRect = dragGhost.getBoundingClientRect();
             const boardRect = board.getBoundingClientRect();
-            
             const shapeObj = currentShapes[activeShapeIndex];
-            const cols = shapeObj.matrix[0].length;
-            const rows = shapeObj.matrix.length;
             
-            const ghostCellWidth = ghostRect.width / cols;
-            const ghostCellHeight = ghostRect.height / rows;
+            const ghostCellWidth = ghostRect.width / shapeObj.matrix[0].length;
+            const ghostCellHeight = ghostRect.height / shapeObj.matrix.length;
             
             const ghostCenterX = ghostRect.left + (ghostCellWidth / 2);
             const ghostCenterY = ghostRect.top + (ghostCellHeight / 2);
@@ -892,14 +829,11 @@
 
         function getClosestValidPosition(matrix, startRow, startCol) {
             let possibleOffsets = [];
-            let maxRadius = 2;
-            
-            for (let r = -maxRadius; r <= maxRadius; r++) {
-                for (let c = -maxRadius; c <= maxRadius; c++) {
+            for (let r = -2; r <= 2; r++) {
+                for (let c = -2; c <= 2; c++) {
                     possibleOffsets.push({dr: r, dc: c, dist: r*r + c*c});
                 }
             }
-            
             possibleOffsets.sort((a, b) => a.dist - b.dist);
             
             for (let offset of possibleOffsets) {
@@ -911,27 +845,22 @@
         }
 
         function highlightBoard() {
-            Array.from(board.children).forEach(c => {
-                c.classList.remove('hover', 'clear-preview');
-            });
-            
+            Array.from(board.children).forEach(c => c.classList.remove('hover', 'clear-preview'));
             const shapeObj = currentShapes[activeShapeIndex];
             const rawPos = calculateTargetPosition();
             const bestPos = getClosestValidPosition(shapeObj.matrix, rawPos.targetRow, rawPos.targetCol);
             
             if (bestPos) {
-                let pos = bestPos;
                 let tempGrid = grid.map(r => [...r]);
                 for (let r = 0; r < shapeObj.matrix.length; r++) {
                     for (let c = 0; c < shapeObj.matrix[r].length; c++) {
                         if (shapeObj.matrix[r][c] === 1) {
-                            tempGrid[pos.targetRow + r][pos.targetCol + c] = 1;
+                            tempGrid[bestPos.targetRow + r][bestPos.targetCol + c] = 1;
                         }
                     }
                 }
 
-                let fullRows = [];
-                let fullCols = [];
+                let fullRows = []; let fullCols = [];
                 for (let r = 0; r < 8; r++) if (tempGrid[r].every(val => val === 1)) fullRows.push(r);
                 for (let c = 0; c < 8; c++) if (tempGrid.every(row => row[c] === 1)) fullCols.push(c);
 
@@ -941,19 +870,13 @@
                         let isPartOfShape = false;
                         for (let sr = 0; sr < shapeObj.matrix.length; sr++) {
                             for (let sc = 0; sc < shapeObj.matrix[sr].length; sc++) {
-                                if (shapeObj.matrix[sr][sc] === 1 && (pos.targetRow + sr === r) && (pos.targetCol + sc === c)) {
+                                if (shapeObj.matrix[sr][sc] === 1 && (bestPos.targetRow + sr === r) && (bestPos.targetCol + sc === c)) {
                                     isPartOfShape = true;
                                 }
                             }
                         }
-
-                        if (isPartOfShape) {
-                            board.children[idx].classList.add('hover');
-                        }
-
-                        if (fullRows.includes(r) || fullCols.includes(c)) {
-                            board.children[idx].classList.add('clear-preview');
-                        }
+                        if (isPartOfShape) board.children[idx].classList.add('hover');
+                        if (fullRows.includes(r) || fullCols.includes(c)) board.children[idx].classList.add('clear-preview');
                     }
                 }
             }
@@ -967,7 +890,6 @@
 
         window.addEventListener('pointerup', (e) => {
             if (activeShapeIndex === null) return;
-            
             const shapeObj = currentShapes[activeShapeIndex];
             const rawPos = calculateTargetPosition();
             const bestPos = getClosestValidPosition(shapeObj.matrix, rawPos.targetRow, rawPos.targetCol);
@@ -978,7 +900,6 @@
             if (bestPos) {
                 attemptPlacement(activeShapeIndex, bestPos.targetRow, bestPos.targetCol);
             }
-            
             activeShapeIndex = null;
         });
 
@@ -987,7 +908,7 @@
             nextShapes.forEach(shapeObj => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
-                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 16px)`;
+                shapeDiv.style.gridTemplateColumns = `repeat(${shapeObj.matrix[0].length}, 14px)`;
                 shapeObj.matrix.forEach(row => row.forEach(val => {
                     const cell = document.createElement('div');
                     cell.classList.add('shape-cell', 'preview');
@@ -1032,12 +953,12 @@
         function undoMove() {
             if (moveHistory.length === 0) return;
             if (gems < 2) {
-                alert("Nicht genug Juwelen! Du brauchst 2 💎, um einen Zug rückgängig zu machen.");
+                alert("Nicht genug Juwelen (2 💎 nötig)!");
                 return;
             }
             gems -= 2;
             updateGemUI();
-            showFloatingText("-2 💎 RÜCKGÄNGIG");
+            showFloatingText("-2 💎");
             const lastState = moveHistory.pop();
             
             grid = lastState.grid;
@@ -1051,22 +972,15 @@
             
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    let idx = r * 8 + c;
-                    let cell = board.children[idx];
+                    let cell = board.children[r * 8 + c];
                     cell.className = 'cell';
-                    if (grid[r][c] === 1) {
-                        cell.classList.add(`filled-color-${gridColors[r][c]}`);
-                    }
+                    if (grid[r][c] === 1) cell.classList.add(`filled-color-${gridColors[r][c]}`);
                 }
             }
-            
             drawCurrentShapes();
             drawPreviewShapes();
             deactivateHammer();
-            
-            if (moveHistory.length === 0) {
-                document.getElementById('undo-btn').style.display = 'none';
-            }
+            if (moveHistory.length === 0) document.getElementById('undo-btn').style.display = 'none';
             playSound('hammer');
         }
 
@@ -1082,7 +996,6 @@
                             let boardC = startCol + c;
                             grid[boardR][boardC] = 1; 
                             gridColors[boardR][boardC] = shapeObj.colorId;
-                            
                             let cell = board.children[boardR * 8 + boardC];
                             cell.className = 'cell'; 
                             cell.classList.add(`filled-color-${shapeObj.colorId}`);
@@ -1115,14 +1028,10 @@
             for (let c = 0; c < 8; c++) if (grid.every(row => row[c] === 1)) colsToClear.push(c);
 
             let linesCleared = rowsToClear.length + colsToClear.length;
-            
             if (linesCleared > 0) {
                 playSound('explode');
-                
-                let comboMultiplier = linesCleared; 
-                let bonusPoints = (linesCleared * 100) * comboMultiplier;
+                let bonusPoints = (linesCleared * 100) * linesCleared;
                 updateScore(bonusPoints);
-
                 showFloatingText(`+${bonusPoints} COMBO!`);
 
                 if (linesCleared >= 2) {
@@ -1138,11 +1047,10 @@
         }
 
         function checkTableClear() {
-            let isBoardEmpty = grid.every(row => row.every(val => val === 0));
-            if (isBoardEmpty) {
+            if (grid.every(row => row.every(val => val === 0))) {
                 playSound('tableclear');
                 updateScore(5000);
-                showFloatingText("+5.000 TABLE CLEAR! 🌟");
+                showFloatingText("+5.000 CLEAR! 🌟");
                 activateDoubleScore();
             }
         }
@@ -1152,13 +1060,11 @@
             secondsLeft = 60;
             doubleScoreBanner.style.display = 'block';
             timerSecondsElement.innerText = secondsLeft;
-
             if (doubleScoreTimer) clearInterval(doubleScoreTimer);
 
             doubleScoreTimer = setInterval(() => {
                 secondsLeft--;
                 timerSecondsElement.innerText = secondsLeft;
-
                 if (secondsLeft <= 0) {
                     clearInterval(doubleScoreTimer);
                     doubleScoreActive = false;
@@ -1171,26 +1077,21 @@
             grid[r][c] = 0;
             gridColors[r][c] = -1;
             cellHtml.className = 'cell explosion';
-            setTimeout(() => { 
-                cellHtml.className = 'cell'; 
-            }, 200);
+            setTimeout(() => { cellHtml.className = 'cell'; }, 200);
         }
 
         function showFloatingText(text) {
             const div = document.createElement('div');
             div.classList.add('floating-text');
             div.innerText = text;
-            div.style.left = (Math.random() * 100 + 50) + 'px';
-            div.style.top = '150px';
+            div.style.left = '40%';
+            div.style.top = '40%';
             boardWrapper.appendChild(div);
             setTimeout(() => div.remove(), 800);
         }
 
         function updateScore(pointsToAdd) {
-            if (doubleScoreActive) {
-                pointsToAdd *= 2;
-            }
-
+            if (doubleScoreActive) pointsToAdd *= 2;
             let oldScore = score;
             score += pointsToAdd;
             scoreElement.innerText = score;
@@ -1198,16 +1099,9 @@
             let oldGemsEarned = Math.floor(oldScore / 1000);
             let newGemsEarned = Math.floor(score / 1000);
             if (newGemsEarned > oldGemsEarned) {
-                let diff = newGemsEarned - oldGemsEarned;
-                gems += diff;
+                gems += (newGemsEarned - oldGemsEarned);
                 updateGemUI();
-                showFloatingText(`+${diff} 💎 JUWEL!`);
-            }
-
-            if (score >= nextHammerMilestone) {
-                hammersAvailable++;
-                nextHammerMilestone += 50000;
-                updateHammerUI();
+                showFloatingText(`+${newGemsEarned - oldGemsEarned} 💎`);
             }
         }
 
@@ -1223,14 +1117,11 @@
         function activateHammer() {
             if (hammersAvailable <= 0) return;
             hammerModeActive = !hammerModeActive;
-            
             if (hammerModeActive) {
                 hammerBtn.classList.add('active-hammer');
                 for (let r = 0; r < 8; r++) {
                     for (let c = 0; c < 8; c++) {
-                        if (grid[r][c] === 1) {
-                            board.children[r * 8 + c].classList.add('hammer-target');
-                        }
+                        if (grid[r][c] === 1) board.children[r * 8 + c].classList.add('hammer-target');
                     }
                 }
             } else {
@@ -1248,7 +1139,6 @@
             playSound('hammer');
             grid[row][col] = 0;
             gridColors[row][col] = -1;
-            
             let cell = board.children[row * 8 + col];
             cell.className = 'cell explosion';
             setTimeout(() => { cell.className = 'cell'; }, 200);
@@ -1256,15 +1146,13 @@
             hammersAvailable--;
             deactivateHammer();
             updateHammerUI();
-
             checkTableClear();
             checkGameOver();
         }
 
         function checkGameOver() {
             if (hammerModeActive || hammersAvailable > 0) {
-                let hasBlocksOnBoard = grid.some(row => row.includes(1));
-                if (hasBlocksOnBoard && hammersAvailable > 0) return; 
+                if (grid.some(row => row.includes(1)) && hammersAvailable > 0) return; 
             }
 
             let canPlaceAny = false;
@@ -1281,15 +1169,10 @@
                 if (canPlaceAny) break;
             }
 
-            if (!canPlaceAny) {
-                if (hammersAvailable > 0) {
-                    return; 
-                }
-
+            if (!canPlaceAny && hammersAvailable === 0) {
                 playSound('gameover');
                 finalScoreElement.innerText = score;
                 gameOverModal.style.display = 'flex';
-                
                 if (isNewHighscore(score)) {
                     newHighscoreArea.style.display = 'flex';
                     standardButtons.style.display = 'none';
@@ -1329,9 +1212,7 @@
 
         function restartGame() {
             score = 0; scoreElement.innerText = score;
-            lastGemScoreMilestone = 0;
             hammersAvailable = 0;
-            nextHammerMilestone = 50000;
             updateHammerUI();
             deactivateHammer();
 
@@ -1344,10 +1225,7 @@
             document.getElementById('undo-btn').style.display = 'none';
             gridColors = Array(8).fill().map(() => Array(8).fill(-1));
             
-            Array.from(board.children).forEach(cell => {
-                cell.className = 'cell';
-            });
-            
+            Array.from(board.children).forEach(cell => { cell.className = 'cell'; });
             gameOverModal.style.display = 'none';
             
             currentShapes = [getRandomShape(), getRandomShape(), getRandomShape()];
@@ -1361,18 +1239,15 @@
             leaderboards.sort((a, b) => b.score - a.score);
             if (leaderboards.length > MAX_HIGHSCORES) leaderboards.pop();
             localStorage.setItem('blockExplosionLeaderboard', JSON.stringify(leaderboards));
-            
             playerNameInput.value = '';
             gameOverModal.style.display = 'none';
             openMenu();
         }
 
-        // --- ENTWICKLER / CHEAT FUNKTION ---
         window.giveGems = function(amount) {
             gems += amount;
             updateGemUI();
-            showFloatingText(`+${amount} 💎 ENTWICKLER-DIAMANTEN!`);
-            console.log(`Erfolgreich ${amount} Juwelen hinzugefügt. Aktueller Stand: ${gems}`);
+            showFloatingText(`+${amount} 💎`);
         };
 
         updateGemUI();
@@ -1381,15 +1256,15 @@
 
     <!-- SHOP MODAL -->
     <div id="shop-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:200; justify-content:center; align-items:center; backdrop-filter:blur(5px);">
-        <div style="background:rgba(20,20,20,0.95); padding:30px; border-radius:16px; width:90%; max-width:400px; border:2px solid rgba(255,255,255,0.2); text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8);">
-            <h2 style="color:#ff9800; margin-top:0;">💎 Juwelen-Shop</h2>
-            <p style="color:#aaa; font-size:14px;">Erhalte 1 Juwel pro 1,000 Punkte im Spiel!</p>
-            <p style="color:#00bcd4; font-weight:bold; font-size:16px; margin-bottom:20px;">Verfügbare Juwelen: <span id="shop-gem-count">0</span></p>
+        <div style="background:rgba(20,20,20,0.95); padding:20px; border-radius:16px; width:90%; max-width:360px; border:2px solid rgba(255,255,255,0.2); text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8);">
+            <h2 style="color:#ff9800; margin-top:0; font-size:22px;">💎 Juwelen-Shop</h2>
+            <p style="color:#aaa; font-size:12px;">Erhalte 1 Juwel pro 1.000 Punkte!</p>
+            <p style="color:#00bcd4; font-weight:bold; font-size:14px; margin-bottom:15px;">Verfügbar: <span id="shop-gem-count">0</span> 💎</p>
             
-            <div id="shop-items-container" style="display:flex; flex-direction:column; gap:10px; max-height:250px; overflow-y:auto; margin-bottom:20px; text-align:left;">
+            <div id="shop-items-container" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; margin-bottom:15px; text-align:left;">
             </div>
             
-            <button class="btn" onclick="closeShop()" style="background-color:#666; margin-top:0;">Schließen</button>
+            <button class="btn" onclick="closeShop()" style="background-color:#666; margin-top:0; padding:8px;">Schließen</button>
         </div>
     </div>
 
