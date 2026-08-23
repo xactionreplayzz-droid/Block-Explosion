@@ -34,7 +34,6 @@
         #bg-game {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('spiel-hintergrund.jpeg');
             background-size: cover;
             background-position: center;
             z-index: -2;
@@ -559,11 +558,42 @@
         let secondsLeft = 60;
         
         let gems = parseInt(localStorage.getItem('blockExplosionGems')) || 0;
+
+        // DEFINITION DER THEMES UND HINTERGRÜNDE
+        const themes = {
+            standard: { name: "Standard Neon", price: 0, colors: ["#ff5252", "#ffeb3b", "#00bcd4", "#ab47bc", "#66bb6a", "#ff9800", "#26c6da"] },
+            neon: { name: "Cyberpunk Neon ⚡", price: 500, colors: ["#ff0055", "#00ffcc", "#ffff00", "#ff00ff", "#00ff00", "#ff6600", "#00ffff"] },
+            pastel: { name: "Pastel Traum 🌸", price: 1000, colors: ["#ffb3ba", "#ffdfba", "#ffffba", "#baffc9", "#bae1ff", "#e8baff", "#ffbae4"] },
+            gold: { name: "Gold & Luxus 👑", price: 5000, colors: ["#d4af37", "#ffd700", "#b8860b", "#daa520", "#eee8aa", "#f0e68c", "#bdb76b"] }
+        };
+
+        const backgroundThemes = {
+            standard: { name: "Standard Spielfeld", price: 0 },
+            cats: { name: "Katzen-Traum Spielfeld 🐱", price: 1000 }
+        };
+
+        const musicTracks = {
+            standard: { name: "Standard Musik 🎵", price: 0 },
+            arcade: { name: "Arcade Song 🕹️", price: 2000 },
+            chill: { name: "Chill Arcade ☕", price: 2000 }
+        };
+
+        // LADE-SICHERHEITS-CHECKS
         let activeTheme = localStorage.getItem('blockExplosionTheme') || 'standard';
+        if (!themes[activeTheme]) activeTheme = 'standard'; // Sicherstellen, dass das Theme noch existiert!
+
         let unlockedThemes = JSON.parse(localStorage.getItem('blockExplosionUnlocked')) || ['standard'];
+        unlockedThemes = unlockedThemes.filter(t => themes[t]); // Alte ungültige Themes löschen
+
+        let activeBackground = localStorage.getItem('blockExplosionBackground') || 'standard';
+        if (!backgroundThemes[activeBackground]) activeBackground = 'standard';
+
+        let unlockedBackgrounds = JSON.parse(localStorage.getItem('blockExplosionUnlockedBackgrounds')) || ['standard'];
+        unlockedBackgrounds = unlockedBackgrounds.filter(b => backgroundThemes[b]);
 
         let activeMusicTrack = localStorage.getItem('blockExplosionMusicTrack') || 'standard';
         let unlockedMusic = JSON.parse(localStorage.getItem('blockExplosionUnlockedMusic')) || ['standard'];
+
 
         function getMusicFile(trackKey) {
             if (trackKey === 'arcade') return 'arcade-musik.mp3';
@@ -575,6 +605,14 @@
         bgMusic.loop = true;
         bgMusic.volume = 0.5;
         let musicEnabled = false;
+
+        function applyGameBackground() {
+            let gameBgImage = 'spiel-hintergrund.jpeg';
+            if (activeBackground === 'cats') {
+                gameBgImage = 'katzen-hintergrund.jpeg';
+            }
+            bgGame.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${gameBgImage}')`;
+        }
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
@@ -588,19 +626,6 @@
             }
         }
 
-        const themes = {
-            standard: { name: "Standard Neon", price: 0, colors: ["#ff5252", "#ffeb3b", "#00bcd4", "#ab47bc", "#66bb6a", "#ff9800", "#26c6da"] },
-            neon: { name: "Cyberpunk Neon ⚡", price: 500, colors: ["#ff0055", "#00ffcc", "#ffff00", "#ff00ff", "#00ff00", "#ff6600", "#00ffff"] },
-            pastel: { name: "Pastel Traum 🌸", price: 1000, colors: ["#ffb3ba", "#ffdfba", "#ffffba", "#baffc9", "#bae1ff", "#e8baff", "#ffbae4"] },
-            gold: { name: "Gold & Luxus 👑", price: 5000, colors: ["#d4af37", "#ffd700", "#b8860b", "#daa520", "#eee8aa", "#f0e68c", "#bdb76b"] }
-        };
-
-        const musicTracks = {
-            standard: { name: "Standard Musik 🎵", price: 0 },
-            arcade: { name: "Arcade Song 🕹️", price: 2000 },
-            chill: { name: "Chill Arcade ☕", price: 2000 }
-        };
-
         function updateGemUI() {
             document.getElementById('gem-count').innerText = gems;
             const shopGemCount = document.getElementById('shop-gem-count');
@@ -613,8 +638,9 @@
             const container = document.getElementById('shop-items-container');
             container.innerHTML = '';
 
+            // Farb-Themes (Blöcke)
             let titleThemes = document.createElement('div');
-            titleThemes.innerHTML = '<strong style="color:#ff9800; font-size:13px;">Farb-Themes:</strong>';
+            titleThemes.innerHTML = '<strong style="color:#ff9800; font-size:13px;">Block-Themes:</strong>';
             container.appendChild(titleThemes);
 
             for (let key in themes) {
@@ -652,6 +678,47 @@
                 container.appendChild(div);
             }
 
+            // Spielfeld-Hintergründe
+            let titleBgs = document.createElement('div');
+            titleBgs.innerHTML = '<strong style="color:#e91e63; font-size:13px; margin-top:10px; display:block;">Spielfeld-Hintergrund:</strong>';
+            container.appendChild(titleBgs);
+
+            for (let key in backgroundThemes) {
+                let bg = backgroundThemes[key];
+                let isUnlocked = unlockedBackgrounds.includes(key);
+                let isActive = activeBackground === key;
+
+                let div = document.createElement('div');
+                div.style.background = 'rgba(255,255,255,0.05)';
+                div.style.padding = '8px';
+                div.style.borderRadius = '6px';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.style.border = isActive ? '2px solid #00bcd4' : '1px solid rgba(255,255,255,0.1)';
+
+                let textDiv = document.createElement('div');
+                textDiv.innerHTML = `<span style="color:white; font-size:12px;">${bg.name}</span><br><span style="color:#aaa; font-size:10px;">${isUnlocked ? (isActive ? 'Aktiv' : 'Freigeschaltet') : 'Kosten: ' + bg.price + ' 💎'}</span>`;
+
+                let actionBtn = document.createElement('button');
+                actionBtn.className = 'btn';
+                actionBtn.style.width = 'auto';
+                actionBtn.style.padding = '4px 8px';
+                actionBtn.style.margin = '0';
+                actionBtn.style.fontSize = '11px';
+
+                if (isActive) {
+                    actionBtn.innerText = 'Aktiv'; actionBtn.disabled = true; actionBtn.style.backgroundColor = '#444';
+                } else if (isUnlocked) {
+                    actionBtn.innerText = 'Wählen'; actionBtn.style.backgroundColor = '#00bcd4'; actionBtn.onclick = () => selectBackground(key);
+                } else {
+                    actionBtn.innerText = 'Kaufen'; actionBtn.style.backgroundColor = gems >= bg.price ? '#ff9800' : '#444'; actionBtn.onclick = () => buyBackground(key);
+                }
+                div.appendChild(textDiv); div.appendChild(actionBtn);
+                container.appendChild(div);
+            }
+
+            // Musik
             let titleMusic = document.createElement('div');
             titleMusic.innerHTML = '<strong style="color:#00bcd4; font-size:13px; margin-top:10px; display:block;">Hintergrundmusik:</strong>';
             container.appendChild(titleMusic);
@@ -704,8 +771,30 @@
                 selectTheme(key); openShop();
             } else { alert("Nicht genug Juwelen!"); }
         }
-        function selectTheme(key) { activeTheme = key; localStorage.setItem('blockExplosionTheme', activeTheme); openShop(); }
+        function selectTheme(key) { 
+            activeTheme = key; 
+            localStorage.setItem('blockExplosionTheme', activeTheme); 
+            // Direkt beim Wechseln die neuen Farben im Shop & Spiel zeichnen
+            drawCurrentShapes();
+            drawPreviewShapes();
+            openShop(); 
+        }
         function getCurrentColors() { return themes[activeTheme].colors; }
+
+        function buyBackground(key) {
+            let bg = backgroundThemes[key];
+            if (gems >= bg.price) {
+                gems -= bg.price; unlockedBackgrounds.push(key);
+                localStorage.setItem('blockExplosionUnlockedBackgrounds', JSON.stringify(unlockedBackgrounds));
+                selectBackground(key); openShop();
+            } else { alert("Nicht genug Juwelen!"); }
+        }
+        function selectBackground(key) {
+            activeBackground = key;
+            localStorage.setItem('blockExplosionBackground', activeBackground);
+            applyGameBackground();
+            openShop();
+        }
 
         function buyMusicTrack(key) {
             let track = musicTracks[key];
@@ -845,6 +934,7 @@
         }
 
         function drawCurrentShapes() {
+            if (!themes[activeTheme]) return; // Sicherheitscode
             currentShapes.forEach((shapeObj, index) => {
                 let shapeDiv = document.getElementById(`shape-${index}`);
                 if (!shapeDiv) return;
@@ -868,6 +958,7 @@
         function initShapeContainer() {
             shapeContainer.innerHTML = ''; 
             blocksUsed = 0;
+            if (!themes[activeTheme]) return; // Sicherheitscode
             currentShapes.forEach((shapeObj, index) => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
@@ -1044,6 +1135,7 @@
 
         function drawPreviewShapes() {
             previewContainer.innerHTML = ''; 
+            if (!themes[activeTheme]) return; // Sicherheitscode
             nextShapes.forEach(shapeObj => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.classList.add('shape');
@@ -1332,7 +1424,9 @@
 
         window.giveGems = function(amount) { gems += amount; updateGemUI(); showFloatingText(`+${amount} 💎`); };
 
-        updateGemUI(); updateLeaderboardUI();
+        applyGameBackground();
+        updateGemUI(); 
+        updateLeaderboardUI();
     </script>
 
     <!-- SHOP MODAL -->
