@@ -15,6 +15,7 @@
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: none;
         }
 
         html, body {
@@ -24,6 +25,7 @@
             overflow: hidden;
             touch-action: none;
             overscroll-behavior: none;
+            -webkit-overflow-scrolling: auto;
         }
 
         body {
@@ -36,7 +38,7 @@
             height: 100dvh;
             margin: 0;
             padding: 8px;
-            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
             padding-top: max(8px, env(safe-area-inset-top));
             background-color: #0d0e15;
             box-sizing: border-box;
@@ -188,7 +190,7 @@
             box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
         }
         .volume-container span { color: #80deea; font-size: 11px; font-weight: 700; }
-        .volume-container input { flex-grow: 1; accent-color: #00e5ff; cursor: pointer; }
+        .volume-container input { flex-grow: 1; accent-color: #00e5ff; cursor: pointer; touch-action: auto; }
 
         #leaderboard-container {
             margin-top: 14px;
@@ -400,7 +402,6 @@
         .cell.filled-color-5 { background-color: #ff9800; box-shadow: inset 0 0 8px rgba(0,0,0,0.4); }
         .cell.filled-color-6 { background-color: #26c6da; box-shadow: inset 0 0 8px rgba(0,0,0,0.4); }
 
-        /* BOMBEN STYLING & ANIMATION */
         @keyframes bombPulse {
             0%, 100% { transform: scale(1); box-shadow: 0 0 10px #ff1744, inset 0 0 10px #ff1744; }
             50% { transform: scale(1.08); box-shadow: 0 0 22px #ff1744, inset 0 0 15px #ffffff; }
@@ -418,7 +419,6 @@
         .cell.clear-preview { background-color: #ff9800 !important; }
         .cell.explosion { background-color: #ffffff !important; transform: scale(1.1); }
 
-        /* NEON GLOW EXPLOSIONSPARTIKEL */
         .particle {
             position: absolute;
             border-radius: 50%;
@@ -522,18 +522,23 @@
             border: 2px solid rgba(255,255,255,0.15);
             box-shadow: 0 8px 25px rgba(0,0,0,0.8);
             box-sizing: border-box;
-            margin-bottom: max(0px, env(safe-area-inset-bottom));
+            margin-bottom: max(12px, env(safe-area-inset-bottom));
         }
 
-        /* FIX EXKLUSIV FÜR APPLE / IOS GERÄTE */
+        /* EXKLUSIVER FIX FÜR IOS (IPHONE / IPAD) */
         @supports (-webkit-touch-callout: none) {
             .bottom-control-panel {
-                margin-bottom: calc(env(safe-area-inset-bottom) + 12px); 
+                margin-bottom: calc(env(safe-area-inset-bottom) + 60px) !important;
             }
             
+            #game-board {
+                transform: scale(0.95);
+                margin-top: -10px;
+            }
+
             #game-container {
-                padding-bottom: 5px;
-                justify-content: space-evenly;
+                justify-content: flex-start;
+                gap: 4px;
             }
         }
 
@@ -552,9 +557,17 @@
             align-items: center;
             justify-content: center;
             width: 100%;
+            touch-action: none;
         }
 
-        .shape { display: grid; gap: 3px; cursor: grab; touch-action: none; padding: 4px; border-radius: 8px; }
+        .shape { 
+            display: grid; 
+            gap: 3px; 
+            cursor: grab; 
+            touch-action: none; 
+            padding: 8px; 
+            border-radius: 8px; 
+        }
         .shape.selected-shape { background: rgba(0, 188, 212, 0.2); outline: 2px dashed #00bcd4; }
         
         .shape-cell { border-radius: 4px; pointer-events: none; }
@@ -675,18 +688,15 @@
     <div id="drag-ghost"></div>
 
     <script>
-        // BLOCKIERE SAFARI / IOS SWIPE GESTEN (Rand-Sperre)
-        window.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                const x = e.touches[0].clientX;
-                const y = e.touches[0].clientY;
-                if (x < 20 || x > window.innerWidth - 20 || y > window.innerHeight - 30) {
+        document.addEventListener('touchstart', function (e) {
+            if (isDragging || e.touches[0].clientY > window.innerHeight - 50 || e.touches[0].clientX < 25 || e.touches[0].clientX > window.innerWidth - 25) {
+                if (e.target.tagName !== 'INPUT') {
                     e.preventDefault();
                 }
             }
         }, { passive: false });
 
-        window.addEventListener('touchmove', (e) => {
+        document.addEventListener('touchmove', function (e) {
             if (isDragging) {
                 e.preventDefault();
             }
@@ -717,7 +727,6 @@
         const doubleScoreBanner = document.getElementById('double-score-banner');
         const timerSecondsElement = document.getElementById('timer-seconds');
 
-        // SCHIMPFOWORT-FILTER LISTE
         const badWords = [
             "arsch", "idiot", "scheisse", "scheiss", "scheiß", "wichser", "wixer", 
             "fuck", "shit", "bitch", "nigger", "hurensohn", "fotze", "spast", 
@@ -734,7 +743,6 @@
         let moveHistory = [];
         let gridColors = Array(8).fill().map(() => Array(8).fill(-1));
         
-        /* BOMBEN MECHANIK VARIABLEN */
         let bombGrid = Array(8).fill().map(() => Array(8).fill(null));
         let nextBombThreshold = 10000;
         let isNextPlacementBomb = false;
@@ -1230,7 +1238,6 @@
                     selectedShapeIndex = index;
                     drawCurrentShapes();
                     activeShapeIndex = index;
-                    activePointerId = e.pointerId;
                     isDragging = false;
                     shapeDiv.setPointerCapture(e.pointerId);
                 });
@@ -1280,8 +1287,12 @@
         }
 
         function moveGhost(clientX, clientY) {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
             let left = clientX - (ghostCellSize * 1.5);
-            let top = clientY - (ghostCellSize * 3.2);
+            let offsetY = isIOS ? (ghostCellSize * 5.5) : (ghostCellSize * 3.5);
+            let top = clientY - offsetY;
+
             dragGhost.style.left = left + 'px'; 
             dragGhost.style.top = top + 'px';
         }
@@ -1347,7 +1358,7 @@
         window.addEventListener('pointermove', (e) => {
             if (activeShapeIndex === null) return;
             let moveDist = Math.hypot(e.clientX - startX, e.clientY - startY);
-            if (!isDragging && moveDist > 10) {
+            if (!isDragging && moveDist > 5) {
                 isDragging = true;
                 const shapeObj = currentShapes[activeShapeIndex];
                 const boardRect = board.getBoundingClientRect();
@@ -1466,7 +1477,6 @@
             playSound('hammer');
         }
 
-        /* BOMBEN MECHANIK FUNKTIONEN */
         function createBombAt(r, c, initialTimer = 60) {
             let intervalId = setInterval(() => {
                 if (bombGrid[r][c]) {
@@ -1813,7 +1823,6 @@
         function saveHighscore() {
             let name = playerNameInput.value.trim() || "Anonym";
 
-            // PRÜFUNG AUF BAD WORDS
             if (containsProfanity(name)) {
                 alert("⚠️ Bitte verwende einen angemessenen Namen ohne Schimpfwörter!");
                 playerNameInput.value = '';
